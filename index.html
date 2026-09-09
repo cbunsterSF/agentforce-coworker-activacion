@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentforce Coworker · Demo y Comparativa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cb95:#EAF5FE;--cb80:#90D0FE;--cb68:#00B3FF;
+  --eb50:#066AFE;--eb30:#022AC0;--eb15:#001E5B;
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+  --g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g900:#0f172a;
+  --gr50:#f0fdf4;--gr100:#dcfce7;--gr200:#bbf7d0;--gr600:#16a34a;--gr700:#15803d;
+  --or50:#fff7ed;--or200:#fed7aa;--or700:#c2410c;
+  --font:'Plus Jakarta Sans',-apple-system,sans-serif;
+  --sh-sm:0 1px 3px rgba(0,30,91,.08),0 1px 2px rgba(0,30,91,.04);
+  --sh-md:0 4px 16px rgba(0,30,91,.10),0 2px 6px rgba(0,30,91,.06);
+  --sh-lg:0 8px 32px rgba(0,30,91,.14),0 4px 8px rgba(0,30,91,.08);
+  --sh-xl:0 20px 60px rgba(0,30,91,.18),0 8px 16px rgba(0,30,91,.10);
+}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font);background:var(--cb95);-webkit-font-smoothing:antialiased}
+
+/* === SLIDE ENGINE === */
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 52px;opacity:0;pointer-events:none;
+  transform:translateY(28px) scale(.99);
+  transition:opacity .5s cubic-bezier(.23,1,.32,1),transform .5s cubic-bezier(.23,1,.32,1);
+  overflow:hidden;
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+
+/* === NAVIGATION === */
+.nav-btn{
+  position:fixed;top:50%;transform:translateY(-50%);
+  width:44px;height:44px;border-radius:50%;background:#fff;
+  border:1.5px solid var(--cb80);display:flex;align-items:center;
+  justify-content:center;cursor:pointer;z-index:300;box-shadow:var(--sh-sm);
+  color:var(--eb30);transition:all .2s ease;user-select:none;font-size:18px;
+}
+.nav-btn:hover:not(.dis){background:var(--eb50);border-color:var(--eb50);color:#fff;box-shadow:var(--sh-md);transform:translateY(-50%) scale(1.06)}
+.nav-btn.dis{opacity:.25;cursor:default;pointer-events:none}
+#bp{left:20px}#bn{right:20px}
+.dots{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:300;align-items:center}
+.dot{width:7px;height:7px;border-radius:9999px;background:var(--cb80);cursor:pointer;transition:all .25s cubic-bezier(.23,1,.32,1)}
+.dot.on{width:24px;background:var(--eb50)}
+.dot:hover:not(.on){background:var(--cb68);transform:scale(1.2)}
+.snum{position:fixed;top:22px;right:20px;font-size:12px;font-weight:700;color:var(--g400);letter-spacing:.08em;z-index:300;background:#fff;border:1px solid var(--g200);border-radius:9999px;padding:4px 12px}
+.corner{position:fixed;top:16px;left:20px;z-index:300;display:flex;align-items:center}
+.corner img{height:30px;width:auto;display:block}
+.wmark{position:fixed;bottom:24px;left:22px;z-index:300;font-size:11px;font-weight:600;color:var(--g400);letter-spacing:.04em;opacity:.75;pointer-events:none;user-select:none}
+
+/* === KEYFRAMES === */
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes ring{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.6);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes row-in{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes msg-in{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* stagger helpers */
+.stg>*{opacity:0;transform:translateY(18px)}
+.slide.active .stg>*{animation:fade-up .5s cubic-bezier(.23,1,.32,1) both}
+.slide.active .stg>*:nth-child(1){animation-delay:.05s}
+.slide.active .stg>*:nth-child(2){animation-delay:.13s}
+.slide.active .stg>*:nth-child(3){animation-delay:.21s}
+.slide.active .stg>*:nth-child(4){animation-delay:.29s}
+.slide.active .stg>*:nth-child(5){animation-delay:.37s}
+.slide.active .stg>*:nth-child(6){animation-delay:.45s}
+
+/* table row stagger */
+.comp-table tbody tr{opacity:0;transform:translateX(-12px)}
+.slide.active .comp-table tbody tr{animation:row-in .4s cubic-bezier(.23,1,.32,1) both}
+.slide.active .comp-table tbody tr:nth-child(1){animation-delay:.08s}
+.slide.active .comp-table tbody tr:nth-child(2){animation-delay:.14s}
+.slide.active .comp-table tbody tr:nth-child(3){animation-delay:.20s}
+.slide.active .comp-table tbody tr:nth-child(4){animation-delay:.26s}
+.slide.active .comp-table tbody tr:nth-child(5){animation-delay:.32s}
+.slide.active .comp-table tbody tr:nth-child(6){animation-delay:.38s}
+.slide.active .comp-table tbody tr:nth-child(7){animation-delay:.44s}
+.slide.active .comp-table tbody tr:nth-child(8){animation-delay:.50s}
+.slide.active .comp-table tbody tr:nth-child(9){animation-delay:.56s}
+
+/* === SLIDE 0: HERO === */
+.s0{background:linear-gradient(155deg,#fff 0%,var(--cb95) 55%,#d6ecfd 100%)}
+.s0 .dots-bg{position:absolute;inset:0;background-image:radial-gradient(var(--cb80) 1px,transparent 1px);background-size:30px 30px;opacity:.28;pointer-events:none}
+.s0 .hero-cloud{position:absolute;right:-20px;top:50%;transform:translateY(-50%);width:420px;opacity:.08;animation:float 5s ease-in-out infinite;pointer-events:none}
+.s0 .hero-rings{position:absolute;right:130px;top:50%;transform:translateY(-50%);width:320px;height:320px;pointer-events:none}
+.s0 .ring{position:absolute;border-radius:50%;border:1.5px solid var(--cb80);animation:ring 3.5s ease-out infinite}
+.s0 .ring:nth-child(1){inset:0}
+.s0 .ring:nth-child(2){inset:-32px;animation-delay:1.2s}
+.s0 .ring:nth-child(3){inset:-64px;animation-delay:2.4s}
+.s0 .hero-cloud-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:140px;opacity:.25}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--eb50);background:rgba(6,106,254,.08);border:1px solid rgba(6,106,254,.2);border-radius:9999px;padding:4px 14px;margin-bottom:28px}
+.h-title{font-size:clamp(58px,7.5vw,98px);font-weight:900;line-height:.96;letter-spacing:-.04em;color:var(--eb15);margin-bottom:18px}
+.h-title .accent{color:var(--eb50)}
+.h-sub{font-size:clamp(17px,2vw,23px);color:var(--g500);line-height:1.6;max-width:560px;margin-bottom:40px}
+.h-tagline{font-size:clamp(19px,2.2vw,26px);font-weight:800;color:var(--eb50);letter-spacing:-.02em;margin-bottom:22px}
+.h-points{list-style:none;padding:0;margin:0 0 40px;display:flex;flex-direction:column;gap:12px;max-width:600px}
+.h-points li{position:relative;padding-left:24px;font-size:clamp(16px,1.7vw,20px);color:var(--g500);line-height:1.5}
+.h-points li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--eb50);box-shadow:0 0 0 3px rgba(6,106,254,.12)}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--eb50);color:#fff;font-size:16px;font-weight:700;padding:15px 32px;border-radius:9999px;border:none;cursor:pointer;font-family:var(--font);box-shadow:0 4px 20px rgba(6,106,254,.35);transition:all .2s ease}
+.cta:hover{background:var(--eb30);box-shadow:0 6px 28px rgba(6,106,254,.45);transform:translateY(-1px)}
+.htags{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
+.htag{font-size:12px;font-weight:600;color:var(--g500);padding:5px 12px;background:#fff;border:1px solid var(--g200);border-radius:9999px}
+
+/* === SLIDE 1 & 2: DEFINITIONS === */
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:68px;max-width:1200px;width:100%;align-items:center}
+.def-label{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
+.def-label.blue{color:var(--eb50)}
+.def-label.green{color:var(--gr700)}
+.def-h{font-size:clamp(34px,4vw,58px);font-weight:900;letter-spacing:-.035em;line-height:1.08;color:var(--eb15);margin-bottom:18px}
+.def-p{font-size:17px;line-height:1.7;color:var(--g600);margin-bottom:30px}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{font-size:13px;font-weight:700;padding:7px 16px;border-radius:9999px;border:1.5px solid}
+.chip.blue{background:rgba(6,106,254,.07);color:var(--eb50);border-color:rgba(6,106,254,.25)}
+.chip.green{background:var(--gr50);color:var(--gr700);border-color:var(--gr200)}
+.def-visual{border-radius:24px;padding:36px;position:relative;overflow:hidden}
+.def-visual.blue-v{background:var(--cb95);border:1.5px solid var(--cb80)}
+.def-visual.green-v{background:var(--gr50);border:1.5px solid var(--gr200)}
+.def-visual::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;opacity:.06}
+.def-visual.blue-v::before{background:var(--eb50)}
+.def-visual.green-v::before{background:var(--gr600)}
+.def-icon{font-size:52px;margin-bottom:22px;display:block}
+.stat-rows{display:flex;flex-direction:column;gap:12px}
+.stat-row{display:flex;align-items:center;gap:12px;padding:13px 18px;background:#fff;border-radius:12px;box-shadow:var(--sh-sm);font-size:15px;font-weight:600;color:var(--g700)}
+
+/* === SLIDE 2: COMPARE === */
+.s3{background:#fff;padding:32px 48px}
+.comp-wrap{width:100%;max-width:1140px}
+.comp-h{font-size:clamp(28px,3vw,44px);font-weight:900;letter-spacing:-.035em;color:var(--eb15);margin-bottom:4px}
+.comp-sub{font-size:14px;color:var(--g400);margin-bottom:22px;font-weight:500}
+.comp-table{width:100%;border-collapse:separate;border-spacing:0;border:1.5px solid var(--g200);border-radius:16px;overflow:hidden;font-size:14.5px}
+.comp-table th{padding:15px 24px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.comp-table th.d{background:var(--g50);color:var(--g500);width:26%}
+.comp-table th.c{background:rgba(6,106,254,.06);color:var(--eb50);width:37%}
+.comp-table th.e{background:rgba(22,163,74,.06);color:var(--gr700);width:37%}
+.comp-table td{padding:12px 24px;border-top:1px solid var(--g100);vertical-align:top;line-height:1.5}
+.comp-table tr:nth-child(even) td{background:var(--g50)}
+.comp-table tr:nth-child(odd) td{background:#fff}
+.comp-table td.d{font-weight:700;color:var(--eb15);font-size:13px}
+.comp-table tr:hover td{background:var(--cb95)!important}
+
+/* === SLIDE 3: WHEN === */
+.s4{background:linear-gradient(135deg,var(--cb95) 0%,#fff 65%);padding:36px 52px}
+.when-head{text-align:center;margin-bottom:28px}
+.when-h{font-size:clamp(26px,2.8vw,40px);font-weight:900;letter-spacing:-.035em;color:var(--eb15);margin-bottom:6px}
+.when-sub{font-size:16px;color:var(--g500)}
+.when-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:1100px;width:100%}
+.when-col{background:#fff;border-radius:22px;padding:34px;box-shadow:var(--sh-md);border-top:4px solid}
+.when-col.bl{border-top-color:var(--eb50)}
+.when-col.gr{border-top-color:var(--gr600)}
+.when-col-hd{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.when-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.when-ico.bl{background:rgba(6,106,254,.1)}
+.when-ico.gr{background:var(--gr100)}
+.when-ttl{font-size:18px;font-weight:800;color:var(--eb15)}
+.when-stl{font-size:12px;color:var(--g400);font-weight:600}
+.when-list{list-style:none;display:flex;flex-direction:column;gap:11px}
+.when-item{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:var(--g700);line-height:1.5}
+.wchk{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:10px;color:#fff;font-weight:800}
+.wchk.bl{background:var(--eb50)}
+.wchk.gr{background:var(--gr600)}
+
+/* === SLIDE 5: CANAL === */
+
+/* === SLIDE 4: ACTIVACIÓN === */
+.s5{background:linear-gradient(135deg,#fff 0%,var(--cb95) 60%,#d6ecfd 100%);padding:36px 52px;justify-content:center;align-items:center}
+.act-wrap{width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center}
+.act-grid{display:flex;flex-direction:row;gap:16px;width:100%;margin-top:22px}
+.act-card{background:#fff;border:1.5px solid var(--g200);border-radius:16px;padding:24px 22px;box-shadow:var(--sh-sm);flex:1}
+.act-card.act-step{border-left:4px solid var(--eb50)}
+.act-card.act-done{border-left:4px solid var(--gr600)}
+.act-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--eb15);color:#fff;font-size:15px;font-weight:800;margin-bottom:14px}
+.act-title{font-size:15.5px;font-weight:800;color:var(--eb15);margin-bottom:8px}
+.act-desc{font-size:13px;color:var(--g500);line-height:1.65}
+.act-done-icon{font-size:28px;margin-bottom:10px}
+
+/* === SLIDE 6: FAQ === */
+.s11{background:#fff;padding:28px 52px 20px;justify-content:flex-start;align-items:center}
+.faq-wrap{width:100%;max-width:1040px;display:flex;flex-direction:column;align-items:center;flex:1;min-height:0}
+.faq-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--g100);border-radius:12px;padding:4px;flex-shrink:0}
+.faq-tab{padding:10px 28px;border-radius:9px;border:none;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--g500);background:transparent}
+.faq-tab.on{background:#fff;color:var(--eb50);box-shadow:var(--sh-sm)}
+.faq-panel{display:none;width:100%;animation:fade-up .3s ease both;overflow-y:auto;flex:1;min-height:0}
+.faq-panel.on{display:block}
+.faq-table{width:100%;border-collapse:separate;border-spacing:0;border:1.5px solid var(--g200);border-radius:12px;overflow:hidden;font-size:14.5px;margin-bottom:16px}
+.faq-table thead tr{background:var(--g50)}
+.faq-table th{padding:11px 18px;text-align:left;font-weight:700;color:var(--g600);font-size:13px;letter-spacing:.03em;border-bottom:1.5px solid var(--g200)}
+.faq-table td{padding:11px 18px;border-top:1px solid var(--g100);color:var(--g700);vertical-align:top;line-height:1.5}
+.faq-table tr:nth-child(even) td{background:var(--g50)}
+.faq-tip{background:rgba(6,106,254,.06);border-left:3px solid var(--eb50);border-radius:0 8px 8px 0;padding:13px 18px;font-size:14px;color:var(--eb30);line-height:1.6;margin-top:6px}
+.faq-warn{background:var(--or50);border-left:3px solid var(--or700);border-radius:0 8px 8px 0;padding:13px 18px;font-size:14px;color:var(--or700);line-height:1.6;margin-top:6px}
+.faq-list{padding-left:24px;font-size:14.5px;color:var(--g600);line-height:1.85;margin-bottom:16px}
+.faq-list li{margin-bottom:6px}
+.s8{background:radial-gradient(ellipse at 20% 80%,#d6ecfd 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,#c5e6fe 0%,transparent 50%),var(--cb95);padding:28px 52px 20px;justify-content:flex-start;align-items:center}
+.canal-inner{width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center}
+.sec-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--eb50);background:rgba(6,106,254,.08);border:1px solid rgba(6,106,254,.2);border-radius:9999px;padding:4px 12px;margin-bottom:18px}
+.canal-h{font-size:clamp(26px,3vw,40px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin-bottom:8px;text-align:center}
+.canal-sub{font-size:15px;color:var(--g500);text-align:center;margin-bottom:36px}
+.canal-cards{display:flex;gap:20px;justify-content:center}
+.canal-card{width:210px;background:#fff;border:2px solid var(--g200);border-radius:20px;padding:28px 20px;cursor:pointer;transition:all .25s cubic-bezier(.23,1,.32,1);text-align:center;box-shadow:var(--sh-sm);user-select:none}
+.canal-card:hover{border-color:var(--eb50);box-shadow:0 8px 32px rgba(6,106,254,.2),0 0 0 4px rgba(6,106,254,.08);transform:translateY(-4px) scale(1.02)}
+.canal-logo{height:54px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.canal-logo img{height:46px;width:auto;object-fit:contain}
+.canal-name{font-size:15px;font-weight:800;color:var(--eb15);margin-bottom:5px}
+.canal-desc{font-size:12px;color:var(--g500);line-height:1.5;font-weight:500}
+
+/* === SLIDE 6: ESCENARIO === */
+.s9{background:#fff;padding:28px 52px 20px;justify-content:flex-start;align-items:center}
+.esc-inner{width:100%;max-width:1000px;display:flex;flex-direction:column;align-items:center}
+.esc-h{font-size:clamp(22px,2.5vw,32px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin-bottom:6px;text-align:center}
+.esc-sub{font-size:14px;color:var(--g500);text-align:center;margin-bottom:24px;display:flex;align-items:center;gap:6px}
+.esc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;width:100%}
+.esc-card{background:var(--g50);border:1.5px solid var(--g200);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .2s ease;overflow:hidden}
+.esc-card:hover{border-color:var(--eb50);background:var(--cb95);transform:translateY(-3px);box-shadow:var(--sh-md)}
+.esc-icon{font-size:26px;margin-bottom:10px;display:block}
+.esc-ttl{font-size:12.5px;font-weight:700;color:var(--eb15);line-height:1.4;margin-bottom:7px}
+.esc-desc{font-size:11px;color:var(--g500);line-height:1.5;margin-bottom:10px}
+.tipo{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:9999px;border:1.5px solid}
+.tipo.coworker{background:rgba(6,106,254,.08);color:var(--eb50);border-color:rgba(6,106,254,.25)}
+.tipo.employee-agent{background:var(--gr50);color:var(--gr700);border-color:var(--gr200)}
+.tipo.orquestacion{background:var(--or50);color:var(--or700);border-color:var(--or200)}
+.esc-back{margin-top:18px;font-size:13px;color:var(--g400);cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600;transition:color .2s}
+.esc-back:hover{color:var(--eb50)}
+
+/* === SLIDE 7: DEMO — tarjeta flotante === */
+.s10{background:linear-gradient(135deg,var(--cb95) 0%,#fff 70%);padding:28px 52px 20px;justify-content:flex-start;align-items:center}
+#demo-inner{width:100%;max-width:1100px;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch}
+/* demo common header (slides 5,6,7) */
+.demo-hd{text-align:center;flex-shrink:0;margin-bottom:14px;width:100%}
+.demo-hd-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--eb50);background:rgba(6,106,254,.08);border:1px solid rgba(6,106,254,.2);border-radius:9999px;padding:4px 12px;margin-bottom:12px}
+.demo-hd-h2{font-size:clamp(24px,2.8vw,38px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin-bottom:7px;line-height:1.1}
+.demo-hd-p{font-size:14px;color:var(--g500);margin:0}
+/* demo card wrapper (slide 7 only) */
+.demo-card{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,30,91,.12),0 2px 8px rgba(0,30,91,.06);border:1px solid var(--g200)}
+/* demo split row */
+.demo-row{flex:1;display:flex;overflow:hidden;min-height:0}
+/* left info panel - LIGHT */
+.demo-left{width:256px;flex-shrink:0;background:var(--g50);padding:22px 18px;display:flex;flex-direction:column;border-right:1px solid var(--g200);overflow-y:auto;border-left:4px solid var(--eb50)}
+.demo-left-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--eb50);margin-bottom:16px}
+.demo-left-icon{font-size:30px;margin-bottom:10px}
+.demo-left-title{font-size:14px;font-weight:800;color:var(--eb15);line-height:1.35;margin-bottom:10px}
+.demo-left-desc{font-size:11.5px;color:var(--g500);line-height:1.65;flex:1;min-height:30px}
+.demo-insight{display:none;background:rgba(6,106,254,.06);border:1px solid rgba(6,106,254,.18);border-radius:8px;padding:10px 12px;margin-top:12px}
+.demo-insight strong{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--eb50);display:block;margin-bottom:4px}
+.demo-insight p{font-size:11px;color:var(--eb30);line-height:1.55;margin:0}
+.demo-left-actions{margin-top:16px;flex-shrink:0}
+.demo-nueva-btn{width:100%;background:var(--eb50);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;padding:10px 14px;border-radius:9px;border:none;cursor:pointer;margin-bottom:7px;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .2s}
+.demo-nueva-btn:hover{background:var(--eb30)}
+.demo-volver-link{text-align:center;font-size:12px;color:var(--g400);cursor:pointer;font-weight:600;padding:5px;transition:color .2s}
+.demo-volver-link:hover{color:var(--eb50)}
+/* right channel area */
+.demo-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* bottom bar */
+.demo-bar{height:50px;flex-shrink:0;background:var(--g50);border-top:1px solid var(--g200);display:flex;align-items:center;padding:0 18px;gap:14px}
+.demo-bar-prog{font-size:12.5px;font-weight:700;color:var(--g600)}
+.demo-bar-hint{font-size:11.5px;color:var(--g400);margin-left:auto;margin-right:6px}
+.demo-bar-btn{background:var(--eb50);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;padding:8px 20px;border-radius:9999px;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(6,106,254,.25);transition:background .2s}
+.demo-bar-btn:hover{background:var(--eb30)}
+.demo-bar-btn:disabled{opacity:.4;cursor:default;pointer-events:none;box-shadow:none}
+
+/* Message bubble styles */
+.msg-wrap{display:flex;flex-direction:column;gap:3px;animation:msg-in .3s cubic-bezier(.23,1,.32,1) forwards}
+.msg-r{align-self:flex-end;max-width:68%}
+.msg-l{align-self:flex-start;max-width:78%}
+.msg-c{align-self:center}
+.msg-lbl{font-size:11px;font-weight:700;color:var(--g400);padding:0 4px;margin-bottom:1px}
+.msg-lbl.r{text-align:right}
+.bub-u{background:var(--eb50);color:#fff;padding:10px 16px;border-radius:18px 18px 4px 18px;font-size:13.5px;line-height:1.55}
+.bub-a{background:#fff;color:var(--g700);padding:11px 16px;border-radius:4px 18px 18px 18px;font-size:13.5px;line-height:1.6;border:1px solid var(--g200);box-shadow:var(--sh-sm)}
+.bub-s{background:rgba(6,106,254,.07);color:var(--eb50);border:1px solid rgba(6,106,254,.15);padding:4px 14px;border-radius:9999px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.bub-sub{background:var(--gr50);border:1.5px solid var(--gr200);border-radius:14px;padding:13px 16px;font-size:13px;line-height:1.6;color:var(--g700)}
+.sub-hd{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gr700)}
+.sub-dot{width:8px;height:8px;background:var(--gr600);border-radius:50%;animation:ring 2s ease-out infinite;flex-shrink:0}
+.dato{display:inline-flex;align-items:center;background:rgba(6,106,254,.08);color:var(--eb30);border-radius:4px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:4px;font-family:monospace}
+.spin-ico{display:inline-block;animation:spin 1s linear infinite;margin-right:2px}
+
+/* dark shell overrides for teams */
+.dark-msgs .bub-a{background:#44435E;color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.08)}
+.dark-msgs .bub-s{background:rgba(98,100,167,.3);color:#a8a9d4;border-color:rgba(98,100,167,.4)}
+.dark-msgs .bub-sub{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.25);color:rgba(255,255,255,.85)}
+.dark-msgs .sub-hd{color:#86efac}
+.dark-msgs .msg-lbl{color:rgba(255,255,255,.3)}
+.dark-msgs .bub-u{background:#4F6AF0}
+
+
+strong{font-weight:700}
+code{font-family:ui-monospace,'Cascadia Code',monospace;font-size:.88em;background:rgba(6,106,254,.07);color:var(--eb50);padding:1px 5px;border-radius:4px}
+/* ===== SLIDE 10 · ACTIVATION PHOTO CAROUSEL ===== */
+.car-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,3.5vh,48px) clamp(20px,5vw,90px)}
+.car-head{text-align:center;margin-bottom:12px;flex-shrink:0}
+.car-stage{position:relative;width:min(100%,960px);flex:1;min-height:0;display:flex;align-items:stretch;justify-content:center}
+.car-item{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;transform:translateX(34px);transition:opacity .45s cubic-bezier(.4,0,.2,1),transform .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.car-item.on{opacity:1;transform:none}
+.slide.active .car-item.on{pointer-events:auto}
+.car-figure{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+.car-figure img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;border-radius:14px;box-shadow:var(--sh-lg)}
+.car-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:30px;background:linear-gradient(135deg,#eef4ff,#f7faff);border:1px solid var(--g150,#e2e8f5);border-radius:14px}
+.car-ph .pn{font-size:clamp(56px,9vw,104px);font-weight:900;color:var(--eb50,#066AFE);opacity:.16;line-height:1;letter-spacing:-.04em}
+.car-ph .pt{font-size:14px;font-weight:700;color:var(--eb30,#022AC0);opacity:.7;letter-spacing:.02em}
+.car-ph .pf{font-size:12px;color:var(--g400,#8a97ad);margin-top:2px}
+.car-cap{margin:16px auto 0;display:flex;gap:14px;align-items:flex-start;flex-shrink:0;max-width:820px;text-align:left}
+.car-badge{flex-shrink:0;width:38px;height:38px;border-radius:11px;background:var(--eb50,#066AFE);color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm)}
+.car-cap-t{font-size:17px;font-weight:800;color:var(--eb15,#001E5B);letter-spacing:-.02em;margin-bottom:2px}
+.car-cap-d{font-size:13.5px;color:var(--g600,#475569);line-height:1.5}
+.car-ctrl{display:flex;align-items:center;gap:16px;margin-top:16px;flex-shrink:0}
+.car-arrow{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--eb50,#066AFE);background:#fff;color:var(--eb50,#066AFE);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:var(--sh-sm)}
+.car-arrow:hover{background:var(--eb50,#066AFE);color:#fff}
+.car-arrow.dis{opacity:.3;pointer-events:none}
+.car-dots{display:flex;gap:8px}
+.car-dot{width:9px;height:9px;border-radius:50%;background:var(--g200,#cbd5e6);cursor:pointer;transition:all .25s}
+.car-dot.on{background:var(--eb50,#066AFE);width:26px;border-radius:5px}
+.car-count{font-size:13px;font-weight:700;color:var(--g500,#64748b);min-width:52px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- CORNER LOGO -->
+<div class="corner" style="padding:0">
+  <img src="data:image/png;base64,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" height="28" style="object-fit:contain;display:block">
+</div>
+
+<!-- SLIDE COUNTER -->
+<div class="snum" id="snum">1 / 8</div>
+
+<!-- ARROWS -->
+<div class="nav-btn dis" id="bp">&#8592;</div>
+<div class="nav-btn" id="bn">&#8594;</div>
+
+<!-- DOTS -->
+<div class="dots" id="dots"></div>
+
+<!-- WATERMARK -->
+<div class="wmark">HTML generado por Christopher Bunster</div>
+
+<div class="deck">
+
+<!-- SLIDE 0: HERO -->
+<div class="slide s0 active" id="s0">
+  <div class="dots-bg"></div>
+  <div class="hero-rings">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="hero-cloud-center">
+      <svg viewBox="0 0 440 220" fill="none"><path d="M60 190 Q20 190 20 155 Q20 122 52 115 Q48 98 56 82 Q72 48 108 45 Q118 45 128 50 Q138 28 162 22 Q200 12 228 34 Q244 28 262 30 Q296 28 316 52 Q334 46 350 54 Q382 56 392 82 Q418 86 420 110 Q422 136 400 148 Q396 178 366 185 L104 194 Q80 194 60 190 Z" fill="#066AFE"/></svg>
+    </div>
+  </div>
+  <div class="hero-cloud">
+    <svg viewBox="0 0 440 220" fill="none"><path d="M60 190 Q20 190 20 155 Q20 122 52 115 Q48 98 56 82 Q72 48 108 45 Q118 45 128 50 Q138 28 162 22 Q200 12 228 34 Q244 28 262 30 Q296 28 316 52 Q334 46 350 54 Q382 56 392 82 Q418 86 420 110 Q422 136 400 148 Q396 178 366 185 L104 194 Q80 194 60 190 Z" fill="#001E5B"/></svg>
+  </div>
+  <div style="position:relative;z-index:1;max-width:820px;" class="stg">
+    <div><span class="eyebrow">Salesforce</span></div>
+    <h1 class="h-title"><div>Agentforce</div><div class="accent">Coworker</div></h1>
+    <p class="h-tagline">Tu compañero de IA autónomo</p>
+    <ul class="h-points">
+      <li>Conoce tu negocio desde el primer día</li>
+      <li>Actúa y toma acciones de tus datos</li>
+      <li>Diseñado con arquitectura headless, funciona en cualquier lugar</li>
+    </ul>
+    <div><button class="cta" onclick="goTo(1)">Comenzar &rarr;</button></div>
+    <div class="htags">
+      <span class="htag">Comparativa</span>
+      <span class="htag">Cuándo usar</span>
+      <span class="htag">Demo interactiva</span>
+      <span class="htag">3 canales</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 1: INTRODUCING / BONDADES -->
+<div class="slide s1" id="s1">
+  <div class="intro-wrap stg">
+    <div class="intro-head">
+      <span class="eyebrow">Te presentamos</span>
+      <h2 class="intro-title">Agentforce Coworker</h2>
+      <p class="intro-lead">Tu compañero de IA autónomo: conoce tu negocio, actúa por ti y funciona en todas partes.</p>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-col">
+        <span class="intro-ico">&#129504;</span>
+        <div class="intro-col-t">Conoce tu negocio desde el primer día</div>
+        <ul class="intro-list">
+          <li>Conectado a todas tus fuentes y datos empresariales &mdash; estructurados o no</li>
+          <li>Genera insights razonando sobre tus datos, relaciones y contexto</li>
+          <li>Respeta tus permisos y aplica el acceso por rol automáticamente</li>
+        </ul>
+      </div>
+      <div class="intro-col">
+        <span class="intro-ico">&#9889;</span>
+        <div class="intro-col-t">Actúa en tu nombre</div>
+        <ul class="intro-list">
+          <li>Orquesta los agentes correctos para completar trabajo complejo más rápido</li>
+          <li>Actúa proactivamente, adelantándose a los problemas</li>
+          <li>Monitorea la actividad de los agentes con observabilidad integrada</li>
+        </ul>
+      </div>
+      <div class="intro-col">
+        <span class="intro-ico">&#127760;</span>
+        <div class="intro-col-t">Headless-first, funciona en todas partes</div>
+        <ul class="intro-list">
+          <li>Vive donde trabaja tu equipo: Salesforce, Slack, Teams y más</li>
+          <li>Aporta contexto empresarial completo en cada interacción</li>
+          <li>Mantiene seguridad y gobernanza enterprise en cada experiencia</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.s1{background:linear-gradient(135deg,var(--cb95) 0%,#fff 60%);padding:clamp(28px,3.5vw,52px) clamp(28px,5vw,64px)}
+.intro-wrap{width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center}
+.intro-head{text-align:center;margin-bottom:clamp(20px,2.4vw,34px)}
+.intro-title{font-size:clamp(28px,3.4vw,48px);font-weight:900;letter-spacing:-.035em;color:var(--eb15);margin:8px 0}
+.intro-lead{font-size:clamp(14px,1.5vw,18px);color:var(--g500);max-width:760px;margin:0 auto;line-height:1.6}
+.intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,1.8vw,26px);width:100%}
+.intro-col{background:#fff;border-radius:20px;padding:clamp(20px,2.2vw,30px);box-shadow:var(--sh-md);border-top:4px solid var(--eb50);display:flex;flex-direction:column;gap:14px}
+.intro-ico{width:52px;height:52px;border-radius:14px;background:rgba(6,106,254,.1);display:flex;align-items:center;justify-content:center;font-size:26px}
+.intro-col-t{font-size:clamp(16px,1.7vw,20px);font-weight:800;letter-spacing:-.02em;color:var(--eb15);line-height:1.25}
+.intro-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.intro-list li{position:relative;padding-left:24px;font-size:clamp(12.5px,1.3vw,15px);color:var(--g600);line-height:1.5}
+.intro-list li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--eb50);font-weight:800}
+</style>
+
+<!-- SLIDE 2: COWORKER vs EMPLOYEE AGENTS (comparativa fusionada) -->
+<div class="slide s2" id="s2">
+  <div class="cmp-wrap stg">
+    <div class="cmp-head">
+      <span class="eyebrow">Comparativa · Los dos tipos de agente</span>
+      <h2 class="cmp-title">Coworker <span class="cmp-vs">vs</span> Employee Agents</h2>
+      <p class="cmp-lead">Dos formas de llevar IA a tu equipo: una lista desde el primer día, otra construida a medida.</p>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-col blue">
+        <div class="cmp-col-hd">
+          <span class="cmp-ico blue">🤝</span>
+          <div>
+            <div class="def-label blue">Agentforce Coworker</div>
+            <div class="cmp-role">El director de orquesta</div>
+          </div>
+        </div>
+        <p class="cmp-desc">Asistente de IA de Salesforce disponible <strong>sin configuración</strong> y con acceso nativo a todo el CRM. Responde lo que puede por sí solo y convoca a un especialista cuando la tarea lo requiere.</p>
+        <div class="cmp-chips">
+          <span class="chip blue">Zero Config</span>
+          <span class="chip blue">Todos los canales</span>
+          <span class="chip blue">CRM nativo</span>
+          <span class="chip blue">Sin desarrollo</span>
+        </div>
+      </div>
+      <div class="cmp-col green">
+        <div class="cmp-col-hd">
+          <span class="cmp-ico green">🔧</span>
+          <div>
+            <div class="def-label green">Employee Agents</div>
+            <div class="cmp-role green">Agentes verticales a medida</div>
+          </div>
+        </div>
+        <p class="cmp-desc">Agentes creados con <strong>Agent Builder</strong> para un dominio concreto: lógica propia, acciones personalizadas e integración con sistemas externos. Entran en escena cuando el director los convoca.</p>
+        <div class="cmp-chips">
+          <span class="chip green">Personalizable</span>
+          <span class="chip green">Dominio vertical</span>
+          <span class="chip green">Integrable</span>
+          <span class="chip green">Escalable</span>
+        </div>
+      </div>
+    </div>
+    <div class="cmp-foot">🎼 <strong>El usuario solo habla con Coworker</strong> — él orquesta y delega en los Employee Agents cuando la tarea requiere un especialista.</div>
+  </div>
+</div>
+<style>
+.s2{background:linear-gradient(135deg,#fff 0%,var(--cb95) 100%);padding:clamp(28px,3.5vw,52px) clamp(28px,5vw,64px)}
+.cmp-wrap{width:100%;max-width:1160px;display:flex;flex-direction:column;align-items:center}
+.cmp-head{text-align:center;margin-bottom:clamp(20px,2.4vw,32px)}
+.cmp-title{font-size:clamp(28px,3.4vw,48px);font-weight:900;letter-spacing:-.035em;color:var(--eb15);margin:8px 0}
+.cmp-vs{color:var(--g400);font-weight:800;font-size:.7em;margin:0 6px}
+.cmp-lead{font-size:clamp(14px,1.5vw,17px);color:var(--g500);max-width:720px;margin:0 auto;line-height:1.6}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2vw,28px);width:100%}
+.cmp-col{background:#fff;border-radius:22px;padding:clamp(22px,2.4vw,32px);box-shadow:var(--sh-md);border-top:4px solid;display:flex;flex-direction:column;gap:16px}
+.cmp-col.blue{border-top-color:var(--eb50)}
+.cmp-col.green{border-top-color:var(--gr600)}
+.cmp-col-hd{display:flex;align-items:center;gap:16px}
+.cmp-ico{width:56px;height:56px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.cmp-ico.blue{background:rgba(6,106,254,.1)}
+.cmp-ico.green{background:var(--gr100)}
+.cmp-role{font-size:clamp(18px,2vw,24px);font-weight:900;letter-spacing:-.02em;color:var(--eb15)}
+.cmp-desc{font-size:clamp(13.5px,1.4vw,16px);line-height:1.65;color:var(--g600);margin:0;flex:1}
+.cmp-chips{display:flex;flex-wrap:wrap;gap:9px}
+.cmp-foot{margin-top:clamp(18px,2vw,26px);background:var(--cb95);border:1px solid var(--cb80);border-radius:14px;padding:14px 22px;font-size:clamp(13px,1.4vw,15.5px);color:var(--eb30);line-height:1.6;text-align:center;max-width:1000px}
+</style>
+
+<!-- SLIDE 3: COMPARISON TABLE -->
+<div class="slide s3" id="s3">
+  <div class="comp-wrap">
+    <div class="stg">
+      <div><span class="sec-tag" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--eb50);background:rgba(6,106,254,.08);border:1px solid rgba(6,106,254,.2);border-radius:9999px;padding:4px 12px;margin-bottom:16px">Comparativa</span></div>
+      <h2 class="comp-h">Coworker vs Employee Agents</h2>
+      <p class="comp-sub">9 dimensiones clave para elegir la herramienta correcta</p>
+    </div>
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th class="d">Dimensión</th>
+          <th class="c">Agentforce Coworker</th>
+          <th class="e">Employee Agent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="d">Configuración</td><td class="c">Zero-config. Activo desde el primer día</td><td class="e">Requiere diseño, build y deploy</td></tr>
+        <tr><td class="d">Alcance</td><td class="c">Generalista — toda la CRM disponible</td><td class="e">Especialista — dominio vertical específico</td></tr>
+        <tr><td class="d">Canales</td><td class="c">Salesforce, Teams, Slack, Web, Mobile</td><td class="e">Agentforce Everywhere (configurable)</td></tr>
+        <tr><td class="d">Acceso a datos</td><td class="c">Todos los objetos CRM</td><td class="e">Solo los configurados + Data Cloud</td></tr>
+        <tr><td class="d">Personalización</td><td class="c">Limitada. Comportamiento fijo</td><td class="e">Total: acciones, flujos, lógica propia</td></tr>
+        <tr><td class="d">Sistemas externos</td><td class="c">Estándar (CRM + Email + Calendar)</td><td class="e">Custom: cualquier API o sistema externo</td></tr>
+        <tr><td class="d">Orquestación</td><td class="c">Puede invocar Employee Agents</td><td class="e">Puede ser invocado por Coworker</td></tr>
+        <tr><td class="d">Target</td><td class="c">Cualquier usuario de Salesforce</td><td class="e">Usuarios de un proceso o rol específico</td></tr>
+        <tr><td class="d">Tiempo al valor</td><td class="c">Minutos (activación)</td><td class="e">Semanas/meses (diseño + build + test)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SLIDE 4: WHEN TO USE -->
+<div class="slide s4" id="s4">
+  <div class="when-head stg">
+    <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--eb50);background:rgba(6,106,254,.08);border:1px solid rgba(6,106,254,.2);border-radius:9999px;padding:4px 12px;margin-bottom:14px">Guía de decisión</span></div>
+    <h2 class="when-h">¿Cuándo usar cada uno?</h2>
+    <p class="when-sub">Elige la herramienta según el problema que quieres resolver</p>
+  </div>
+  <div class="when-grid stg">
+    <div class="when-col bl">
+      <div class="when-col-hd">
+        <div class="when-ico bl">🤝</div>
+        <div><div class="when-ttl">Usa Coworker cuando...</div><div class="when-stl">Out-of-the-box · sin build</div></div>
+      </div>
+      <ul class="when-list">
+        <li class="when-item"><span class="wchk bl">✓</span>Necesitas acelerar trabajo cotidiano sin desarrollo</li>
+        <li class="when-item"><span class="wchk bl">✓</span>El equipo consulta datos CRM frecuentemente</li>
+        <li class="when-item"><span class="wchk bl">✓</span>Quieres IA en Slack o Teams sin configurar nada</li>
+        <li class="when-item"><span class="wchk bl">✓</span>Buscas respuestas sobre oportunidades, casos o contactos</li>
+        <li class="when-item"><span class="wchk bl">✓</span>El tiempo al valor es crítico</li>
+        <li class="when-item"><span class="wchk bl">✓</span>No tienes recursos de desarrollo disponibles</li>
+      </ul>
+    </div>
+    <div class="when-col gr">
+      <div class="when-col-hd">
+        <div class="when-ico gr">🔧</div>
+        <div><div class="when-ttl">Crea un Employee Agent cuando...</div><div class="when-stl">Especializado · con build dedicado</div></div>
+      </div>
+      <ul class="when-list">
+        <li class="when-item"><span class="wchk gr">✓</span>Tienes un proceso vertical muy específico</li>
+        <li class="when-item"><span class="wchk gr">✓</span>Necesitas lógica de negocio propia (cálculos, reglas)</li>
+        <li class="when-item"><span class="wchk gr">✓</span>El agente debe integrarse con sistemas externos</li>
+        <li class="when-item"><span class="wchk gr">✓</span>Quieres un nombre y persona propios para el agente</li>
+        <li class="when-item"><span class="wchk gr">✓</span>Vas a escalar el uso a muchos usuarios internos</li>
+        <li class="when-item"><span class="wchk gr">✓</span>El ROI justifica el tiempo de desarrollo</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: ACTIVACIÓN -->
+<div class="slide s5" id="s5">
+  <div class="act-wrap stg">
+    <span class="eyebrow">Activación · Sin PS requerido</span>
+    <h2 style="font-size:clamp(28px,3.2vw,46px);font-weight:900;letter-spacing:-.035em;color:var(--eb15);margin-bottom:6px;text-align:center">Activar Agentforce Coworker</h2>
+    <p style="font-size:15px;color:var(--g500);margin-bottom:0;text-align:center">En menos de 10 minutos, directamente desde Core Setup</p>
+    <div class="act-grid">
+      <div class="act-card act-step">
+        <div class="act-num">1</div>
+        <div class="act-title">Verificar elegibilidad</div>
+        <div class="act-desc">Confirmar que el cliente tiene A4X, A1E o Foundations Flex + Data&nbsp;360 provisionado (no necesita estar configurado).</div>
+      </div>
+      <div class="act-card act-step">
+        <div class="act-num">2</div>
+        <div class="act-title">Ir a Setup</div>
+        <div class="act-desc">Core Setup → buscar <strong>"Agentforce Coworker"</strong> o <strong>"Ask Agentforce"</strong> → activar el toggle.</div>
+      </div>
+      <div class="act-card act-step">
+        <div class="act-num">3</div>
+        <div class="act-title">Asignar permisos</div>
+        <div class="act-desc">Asignar la Permission Set License <strong>"Agentforce Coworker"</strong> y el Permission Set de Admin a los usuarios.</div>
+      </div>
+      <div class="act-card act-done">
+        <div class="act-done-icon">✅</div>
+        <div class="act-title">Listo en minutos</div>
+        <div class="act-desc">Sin servicios profesionales, sin conectores adicionales. CRM + Slack funcionan <em>out of the box</em>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: CANAL (dynamic) -->
+<div class="slide s8" id="s8">
+  <div class="canal-inner" id="canal-inner"></div>
+</div>
+
+<!-- SLIDE 6: ESCENARIO (dynamic) -->
+<div class="slide s9" id="s9">
+  <div class="esc-inner" id="esc-inner"></div>
+</div>
+
+<!-- SLIDE 7: DEMO (dynamic) -->
+<div class="slide s10" id="s10">
+  <div id="demo-inner"></div>
+</div>
+
+</div><!-- /deck -->
+<!-- SLIDE 6: FAQ -->
+<div class="slide s11" id="s11">
+  <div class="faq-wrap">
+    <span class="eyebrow" style="margin-bottom:12px">FAQ</span>
+    <h2 style="font-size:clamp(26px,3vw,42px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin-bottom:18px;text-align:center">Preguntas frecuentes</h2>
+    <div class="faq-tabs">
+      <button class="faq-tab on" onclick="faqTab(0,this)">Clientes elegibles</button>
+      <button class="faq-tab" onclick="faqTab(1,this)">Pricing</button>
+    </div>
+    <!-- Panel 0: Elegibilidad -->
+    <div class="faq-panel on" id="faq-0">
+      <p style="font-size:15px;color:var(--g600);margin-bottom:16px"><strong>Prerequisitos:</strong> Salesforce Edition Enterprise/Unlimited/Agentforce 1 + uno de estos SKUs: A4X, A1E o Foundations Flex. Data&nbsp;360 debe estar provisionado (no necesita estar configurado).</p>
+      <table class="faq-table">
+        <thead><tr><th>Estado</th><th>Edición</th><th>SKU / Entitlement</th></tr></thead>
+        <tbody>
+          <tr><td>✅ Elegible</td><td>Enterprise, Unlimited o Agentforce&nbsp;1</td><td>Agentforce for Sales Add-on, Service Add-on, Foundations Flex, A1E, A4X, o AELA</td></tr>
+          <tr><td>⚠️ Condicional</td><td>Enterprise, Unlimited o Agentforce&nbsp;1</td><td>Ninguno de los anteriores – necesita Foundations-only, Flex Credits o un Agentforce Add-on</td></tr>
+          <tr><td>❌ No elegible</td><td>Por debajo de Enterprise (Essentials, Professional)</td><td>Upgrade a EE requerido</td></tr>
+          <tr><td>❌ No elegible</td><td>Cualquier edición</td><td>GovCloud (no soportado en beta ni GA)</td></tr>
+        </tbody>
+      </table>
+      <div class="faq-tip">💡 <strong>Pro tip:</strong> pedirle al cliente que provisione Data&nbsp;360 antes de tu llamada facilita la demo.</div>
+    </div>
+    <!-- Panel 1: Pricing -->
+    <div class="faq-panel" id="faq-1">
+      <p style="font-size:15px;color:var(--g600);margin-bottom:16px">La diferencia de costo está en la <strong>profundidad de la interacción</strong>. <strong>Global Search</strong> es la barra de búsqueda global de Salesforce: cuando Coworker está activo, esa misma barra usa IA para entender la consulta y traer resultados más inteligentes — una interacción <strong>liviana y rápida</strong>. <strong>Ask Coworker</strong> es el asistente dedicado donde haces una pregunta completa o pides ejecutar una tarea (buscar, resumir, razonar sobre datos): una interacción <strong>más profunda</strong>, por eso consume más.</p>
+      <table class="faq-table">
+        <thead><tr><th>Interacción</th><th>Qué es</th><th>Standard prompts</th><th>Flex Credits (≈)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Global Search</strong></td><td>Búsqueda global potenciada con IA — interacción liviana</td><td>11.25</td><td>~45</td></tr>
+          <tr><td><strong>Ask Coworker</strong></td><td>Asistente dedicado: pregunta o tarea completa — interacción profunda</td><td>18</td><td>~72</td></tr>
+        </tbody>
+      </table>
+      <div class="faq-tip">💡 <strong>¿Qué son los "standard prompts"?</strong> Son la unidad base de consumo de IA en Salesforce — una llamada/interacción estándar con el modelo (un intercambio entrada-salida). Salesforce los traduce a <strong>Flex Credits</strong> para facturar con una sola moneda interna: <strong>1 standard prompt ≈ 4 Flex Credits</strong>. Por eso Ask Coworker cuesta más que Global Search: la IA tiene que "pensar" más para resolver una solicitud completa que para potenciar una búsqueda puntual.</div>
+      <div class="faq-warn">⚠️ Cuando Coworker se activa por primera vez, indexa los datos de la org y puede consumir créditos de <strong>Unstructured Data Processing (UDP)</strong>. Es comportamiento esperado – avisar al cliente para que no se sorprenda en el dashboard.</div>
+      <p style="font-size:12.5px;color:var(--g400);margin-top:10px">Los Flex Credits se descuentan del <strong>Digital Wallet</strong> del cliente. Para modelar el consumo con números reales, usar la <strong>calculadora de pricing de Agentforce Coworker</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: ACTIVACIÓN PASO A PASO (carrusel de fotos) -->
+<div class="slide s6" id="s6">
+  <div class="car-wrap">
+    <div class="car-head">
+      <span class="eyebrow">Activación · Paso a paso</span>
+      <h2 style="font-size:clamp(24px,2.9vw,40px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin:6px 0 0;text-align:center">Cómo se activa y configura Coworker</h2>
+    </div>
+    <div class="car-stage" id="car-stage">
+      <div class="car-item on">
+        <div class="car-figure"><img src="coworker-activacion/1.png" alt="Paso 1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">1</div><div class="pt">Ingreso a la Org</div><div class="pf">coworker-activacion/1.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">1</div><div><div class="car-cap-t">Ingreso a la Org</div><div class="car-cap-d">Ingresar a la Org con un usuario <strong>administrador</strong>. Una vez dentro, ir a <strong>Setup</strong>.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/2.png" alt="Paso 2" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">2</div><div class="pt">Buscar Coworker en Setup</div><div class="pf">coworker-activacion/2.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">2</div><div><div class="car-cap-t">Abrir Setup y buscar Coworker</div><div class="car-cap-d">En <strong>Core Setup</strong>, usar <strong>Quick Find</strong> y buscar <strong>«Agentforce Coworker»</strong>. Hacer clic en <strong>Get Started</strong>. Si no se puede activar, es que faltan <strong>permisos</strong>.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/3.png" alt="Paso 3" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">3</div><div class="pt">Buscar usuarios</div><div class="pf">coworker-activacion/3.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">3</div><div><div class="car-cap-t">Gestionar el acceso de usuarios</div><div class="car-cap-d">En el <strong>Quick Find</strong>, buscar <strong>«Users»</strong> y ubicar al/los usuario(s) que usarán Agentforce Coworker.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/4.png" alt="Paso 4" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">4</div><div class="pt">Edit Assignments</div><div class="pf">coworker-activacion/4.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">4</div><div><div class="car-cap-t">Gestionar el acceso de usuarios</div><div class="car-cap-d">Ingresar a <strong>«Edit Assignments»</strong> del usuario seleccionado.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/5.png" alt="Paso 5" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">5</div><div class="pt">Asignar Permission Sets</div><div class="pf">coworker-activacion/5.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">5</div><div><div class="car-cap-t">Asignar Permission Sets</div><div class="car-cap-d">Agregar <strong>«Agentforce Coworker Admin»</strong> y/o <strong>«Agentforce Coworker User»</strong> como <strong>Enabled Permission Sets</strong>.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/6.png" alt="Paso 6" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">6</div><div class="pt">Activar y refrescar</div><div class="pf">coworker-activacion/6.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">6</div><div><div class="car-cap-t">Activar los permisos</div><div class="car-cap-d">Activar los permisos y luego <strong>refrescar la página</strong>.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/7.png" alt="Paso 7" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">7</div><div class="pt">Habilitar Coworker</div><div class="pf">coworker-activacion/7.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">7</div><div><div class="car-cap-t">Habilitar acceso a Coworker</div><div class="car-cap-d">Ahora tendrás los permisos para <strong>activar Agentforce Coworker</strong>.</div></div></div>
+      </div>
+      <div class="car-item">
+        <div class="car-figure"><img src="coworker-activacion/8.png" alt="Paso 8" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="car-ph" style="display:none"><div class="pn">8</div><div class="pt">Finalizar activación</div><div class="pf">coworker-activacion/8.png</div></div></div>
+        <div class="car-cap"><div class="car-badge">8</div><div><div class="car-cap-t">Finalizar la activación</div><div class="car-cap-d">Esperar a que se <strong>aprovisione</strong> y comenzar a usar Coworker. Como configuración opcional, puedes agregar/activar fuentes como <strong>Slack</strong> y <strong>Data&nbsp;360</strong>.</div></div></div>
+      </div>
+    </div>
+    <div class="car-ctrl">
+      <div class="car-arrow dis" id="car-prev" onclick="carGo(carIdx-1)">&#8592;</div>
+      <div class="car-dots" id="car-dots"></div>
+      <div class="car-arrow" id="car-next" onclick="carGo(carIdx+1)">&#8594;</div>
+      <div class="car-count" id="car-count">1 / 8</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: DIAGRAMA -->
+<div class="slide s7" id="s7">
+  <div class="dg-wrap">
+    <div class="dg-head">
+      <span class="eyebrow">Arquitectura · Visión general</span>
+      <h2 style="font-size:clamp(24px,2.9vw,40px);font-weight:900;letter-spacing:-.03em;color:var(--eb15);margin:6px 0 0;text-align:center">Diagrama de la solución</h2>
+    </div>
+    <div class="dg-figure">
+      <img src="coworker-activacion/diagrama.png" alt="Diagrama de la solución" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="dg-ph" style="display:none">
+        <div class="pt">Diagrama</div>
+        <div class="pf">coworker-activacion/diagrama.png</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.s7 .dg-wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:clamp(28px,4vw,56px) clamp(28px,5vw,72px)}
+.s7 .dg-head{flex-shrink:0;display:flex;flex-direction:column;align-items:center;margin-bottom:clamp(16px,2vw,28px)}
+.s7 .dg-figure{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+.s7 .dg-figure img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;border-radius:14px;box-shadow:var(--sh-lg)}
+.s7 .dg-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:30px;background:linear-gradient(135deg,#eef4ff,#f7faff);border:1px solid var(--g150,#e2e8f5);border-radius:14px}
+.s7 .dg-ph .pt{font-size:20px;font-weight:800;color:var(--eb15)}
+.s7 .dg-ph .pf{font-size:13px;color:var(--g500,#64748b);font-family:monospace}
+</style>
+
+<script>
+const TOTAL = 12;
+let cur = 0;
+const ST = { ch: null, sid: null, mi: -1 };
+
+// ---- SCENARIOS ----
+const SCENS = [
+  {
+    id:'cw-ventas-pipeline', icono:'📊', tipo:'coworker',
+    titulo:'Pipeline de ventas — consulta en 10 segundos',
+    descripcion:'Un rep consulta su pipeline al vuelo sin salir de su contexto.',
+    insight:'Coworker ideal: consulta ad-hoc, sin personalización vertical. Responde con datos CRM al instante.',
+    conv:[
+      {rol:'usuario',txt:'¿Cuáles son mis oportunidades abiertas esta semana con valor > $50k?'},
+      {rol:'sistema',txt:'Consultando Opportunity y Account en Salesforce CRM...',datos:['Opportunity','Account','User']},
+      {rol:'agente',txt:'Encontré 3 oportunidades por encima de $50k con cierre esta semana:\n\n• **Acme Corp — $75k** · Stage: Proposal · cierre viernes 23/8\n• **Beta SA — $90k** · Stage: Negotiation · cierre jueves 22/8\n• **Gamma Inc — $55k** · Stage: Qualification · cierre viernes 23/8\n\nTotal ponderado: $142k. ¿Quieres un resumen para preparar alguna de estas?'},
+      {rol:'usuario',txt:'Sí, armame el resumen para la reunión con Acme Corp de esta tarde.'},
+      {rol:'sistema',txt:'Cargando historial de actividad y contactos de Acme Corp...',datos:['Opportunity','Account','Activity','Contact']},
+      {rol:'agente',txt:'Resumen ejecutivo — reunión Acme Corp (hoy):\n\n**Oportunidad:** Enterprise Platform · $75k · Stage: Proposal\n**Key contact:** John Smith, VP Technology\n**Último contacto:** hace 3 días — llamada de 35 min\n**Próximo paso:** envío de propuesta técnica\n**Insight:** 2 competidores activos — SAP y Oracle mencionados en la última llamada.\n\n¿Quieres que prepare talk tracks?'}
+    ]
+  },
+  {
+    id:'cw-sales-coaching', icono:'🎯', tipo:'orquestacion',
+    titulo:'Coworker orquesta al Sales Coaching Agent',
+    descripcion:'Coworker detecta intención compleja y delega en un Employee Agent especializado.',
+    insight:'Coworker identifica cuándo necesita un agente especializado y lo invoca automáticamente sin que el usuario lo configure.',
+    conv:[
+      {rol:'usuario',txt:'Preparame bien para la reunión con Beta SA de mañana — tenemos mucho en juego.'},
+      {rol:'sistema',txt:'Analizando contexto de Beta SA y detectando intención...',datos:['Opportunity','Account','Activity','Competitor__c']},
+      {rol:'agente',txt:'Beta SA tiene 2 oportunidades abiertas por $140k. Último contacto fue hace 12 días.\n\nDetecté que esta reunión requiere preparación estratégica profunda. Invocando al **Sales Coaching Agent**...'},
+      {rol:'subagente',sub:'Sales Coaching Agent',txt:'Preparación para Beta SA — reunión mañana:\n\n**Pain principal:** costos de soporte postventa subieron 38% YoY.\n**Ángulo recomendado:** ROI de automatización — ahorro proyectado de $180k/año.\n**Objeción probable:** «presupuesto Q3 cerrado» → respuesta: iniciar en Q4 con pago diferido.\n**Preguntas pendientes:** ¿tienen CIO nuevo desde julio? ¿evaluaron ServiceNow?'},
+      {rol:'usuario',txt:'Excelente. ¿Y si traen a un competidor a la reunión?'},
+      {rol:'agente',txt:'Basado en 7 deals similares:\n\n• **ServiceNow** es el competidor más probable (4 deals del mismo tamaño)\n• **Ventaja clave:** integración nativa con Data Cloud — evita el «middleware tax» de $40k/año.\n\nEl Sales Coaching Agent ya incluyó este ángulo en el talk track ↑'}
+    ]
+  },
+  {
+    id:'cw-servicio-casos', icono:'🎧', tipo:'coworker',
+    titulo:'Servicio — resumen de casos críticos',
+    descripcion:'Un agente de soporte revisa sus casos abiertos y prepara una respuesta sin cambiar de pantalla.',
+    insight:'Coworker puro: consulta y resume datos de Case y Contact al instante, y hasta redacta una respuesta — todo out-of-the-box, sin agente vertical.',
+    conv:[
+      {rol:'usuario',txt:'¿Cuáles son mis casos abiertos de prioridad alta y hace cuánto están sin respuesta?'},
+      {rol:'sistema',txt:'Consultando Case y Contact en Salesforce CRM...',datos:['Case','Contact','Account']},
+      {rol:'agente',txt:'Tienes 4 casos abiertos de prioridad alta. Los 3 más urgentes:\n\n• **#00012845 — Acme Corp** · sin respuesta hace 26 h · «Error al facturar»\n• **#00012902 — Beta SA** · sin respuesta hace 9 h · «No puede acceder al portal»\n• **#00012933 — Gamma Inc** · sin respuesta hace 4 h · «Solicita reembolso»\n\n⚠️ El de Acme Corp supera el SLA de 24 h. ¿Quieres que priorice alguno?'},
+      {rol:'usuario',txt:'Sí, armame un borrador de respuesta para el caso de Acme Corp.'},
+      {rol:'sistema',txt:'Cargando detalle del caso y últimas interacciones...',datos:['Case','CaseComment','Contact']},
+      {rol:'agente',txt:'Borrador para **#00012845 — Acme Corp** (contacto: John Smith):\n\n_«Hola John, gracias por tu paciencia. Identificamos el error de facturación de tu última orden y ya lo escalamos al equipo de Billing. Te confirmaremos la corrección hoy antes de las 18:00 hs. Quedo atento a cualquier duda.»_\n\n¿Lo envío como respuesta al caso o prefieres editarlo?'}
+    ]
+  },
+  {
+    id:'cw-catchup-cuenta', icono:'🔎', tipo:'coworker',
+    titulo:'Ponme al día antes de la renovación',
+    descripcion:'Un ejecutivo pide el resumen de una cuenta clave y Coworker agenda el seguimiento por él.',
+    insight:'Coworker puro: razona sobre Account, Activity y Contract, y ejecuta acciones estándar del CRM (crear una tarea) sin desarrollo ni agente a medida.',
+    conv:[
+      {rol:'usuario',txt:'Ponme al día sobre Delta Retail — su contrato renueva pronto.'},
+      {rol:'sistema',txt:'Reuniendo actividad reciente y contrato de Delta Retail...',datos:['Account','Activity','Contract','Opportunity']},
+      {rol:'agente',txt:'**Delta Retail** — al día de hoy:\n\n• **Contrato:** renueva en 21 días · $120k/año · sin oportunidad de renovación creada\n• **Última actividad:** email hace 18 días, sin respuesta\n• **Salud:** 2 casos de soporte cerrados este mes (ambos satisfactorios)\n• **Riesgo:** el contacto principal (María Rojas) cambió de cargo en septiembre\n\n💡 Conviene contactar al nuevo decisor antes de la renovación. ¿Agendo un seguimiento?'},
+      {rol:'usuario',txt:'Sí, creá una tarea para llamar esta semana.'},
+      {rol:'sistema',txt:'Creando tarea de seguimiento en el CRM...',datos:['Task','Account','Contact']},
+      {rol:'agente',txt:'✅ **Tarea creada:** «Llamar a Delta Retail — renovación de contrato»\n• Vence: viernes 12/9 · Prioridad: Alta · asignada a ti\n• Vinculada a la cuenta Delta Retail y al contacto María Rojas\n\nTambién puedo redactar un email de reconexión para el nuevo decisor si lo necesitas.'}
+    ]
+  },
+  {
+    id:'cw-financial-multi', icono:'💼', tipo:'orquestacion',
+    titulo:'Financial Services — múltiples agentes',
+    descripcion:'Un asesor financiero con dos Employee Agents respondiendo en coordinación.',
+    insight:'Coworker actúa como hub de coordinación — detecta qué Employee Agent especializado puede aportar más valor en cada momento de la conversación.',
+    conv:[
+      {rol:'usuario',txt:'Tengo reunión con el cliente García en 20 minutos. ¿Qué debo saber?'},
+      {rol:'sistema',txt:'Analizando perfil y portfolio de García...',datos:['Account','FinancialAccount__c','Interaction__c','Goal__c']},
+      {rol:'agente',txt:'García requiere análisis especializado. Invocando al **Financial Advisor Agent**...'},
+      {rol:'subagente',sub:'Financial Advisor Agent',txt:'Resumen de García:\n\n**Portfolio:** $450k AUM · rendimiento YTD: -3.2% vs benchmark -1.8%\n**Goal:** retiro a los 62 años — faltan 8 años · déficit proyectado: $120k\n**Life event:** hijo mayor ingresa a universidad en 6 meses — impacto $30k/año\n**Pendiente:** rebalanceo 40/60 acordado hace 3 meses, sin ejecutar\n\n**Recomendación:** retomar rebalanceo + fondo educación con deducción fiscal.'},
+      {rol:'usuario',txt:'Perfecto. Terminó la reunión — acordamos rebalancear y revisitar en 60 días.'},
+      {rol:'subagente',sub:'Banking Relationship Agent',txt:'Interacción registrada:\n\n✅ **Interaction creada:** reunión 20/8/2026 · 45 min\n✅ **Summary:** «Revisión de portfolio. Rebalanceo 40/60 acordado. Follow-up: 60 días.»\n✅ **Task creada:** seguimiento el 19/10/2026 — asignada a ti\n✅ **Portfolio flag:** rebalanceo autorizado — pendiente ejecución por inversiones'}
+    ]
+  }
+];
+
+// ---- HELPERS ----
+function fmt(t){
+  if(!t)return'';
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/\n/g,'<br>');
+}
+function getScen(){return SCENS.find(s=>s.id===ST.sid)}
+function chName(ch){return ch==='salesforce'?'Salesforce':ch==='teams'?'Microsoft Teams':'Slack'}
+function chDesc(ch){return ch==='salesforce'?'Agentforce Ask en la UI nativa':ch==='teams'?'Coworker en el chat de Teams':'Coworker en tu workspace de Slack'}
+function chLogo(ch,sz){
+  sz=sz||44;
+  if(ch==='salesforce')return`<img src="data:image/png;base64,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" height="${sz}" style="object-fit:contain;display:block">`;
+  if(ch==='teams')return`<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjQgNCAzNiAzOCI+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTIxLjk5OTkgMjBoMTJjMy4zMTM3IDAgNiAyLjY4NjMgNiA2djEwYzAgMy4zMTM3LTIuNjg2MyA2LTYgNnMtNi0yLjY4NjMtNi02VjI2YzAtMy4zMTM3LTIuNjg2My02LTYtNiIvPjxwYXRoIGZpbGw9InVybCgjYikiIGQ9Ik03Ljk5OTg4IDI0YzAtMy4zMTM3IDIuNjg2MzItNiA2LjAwMDAyLTZoOGMzLjMxMzcgMCA2IDIuNjg2MyA2IDZ2MTJjMCAzLjMxMzcgMi42ODYzIDYgNiA2bC0xNi4wMDAxLS4wMDAxYy01LjUyMjggMC05Ljk5OTkyLTQuNDc3MS05Ljk5OTkyLTEweiIvPjxwYXRoIGZpbGw9InVybCgjYykiIGZpbGwtb3BhY2l0eT0iLjciIGQ9Ik03Ljk5OTg4IDI0YzAtMy4zMTM3IDIuNjg2MzItNiA2LjAwMDAyLTZoOGMzLjMxMzcgMCA2IDIuNjg2MyA2IDZ2MTJjMCAzLjMxMzcgMi42ODYzIDYgNiA2bC0xNi4wMDAxLS4wMDAxYy01LjUyMjggMC05Ljk5OTkyLTQuNDc3MS05Ljk5OTkyLTEweiIvPjxwYXRoIGZpbGw9InVybCgjZCkiIGZpbGwtb3BhY2l0eT0iLjciIGQ9Ik03Ljk5OTg4IDI0YzAtMy4zMTM3IDIuNjg2MzItNiA2LjAwMDAyLTZoOGMzLjMxMzcgMCA2IDIuNjg2MyA2IDZ2MTJjMCAzLjMxMzcgMi42ODYzIDYgNiA2bC0xNi4wMDAxLS4wMDAxYy01LjUyMjggMC05Ljk5OTkyLTQuNDc3MS05Ljk5OTkyLTEweiIvPjxwYXRoIGZpbGw9InVybCgjZSkiIGQ9Ik0zMi45OTk5IDE4YzIuNzYxNCAwIDUtMi4yMzg2IDUtNXMtMi4yMzg2LTUtNS01LTUgMi4yMzg2LTUgNSAyLjIzODYgNSA1IDUiLz48cGF0aCBmaWxsPSJ1cmwoI2YpIiBmaWxsLW9wYWNpdHk9Ii40NiIgZD0iTTMyLjk5OTkgMThjMi43NjE0IDAgNS0yLjIzODYgNS01cy0yLjIzODYtNS01LTUtNSAyLjIzODYtNSA1IDIuMjM4NiA1IDUgNSIvPjxwYXRoIGZpbGw9InVybCgjZykiIGZpbGwtb3BhY2l0eT0iLjQiIGQ9Ik0zMi45OTk5IDE4YzIuNzYxNCAwIDUtMi4yMzg2IDUtNXMtMi4yMzg2LTUtNS01LTUgMi4yMzg2LTUgNSAyLjIzODYgNSA1IDUiLz48cGF0aCBmaWxsPSJ1cmwoI2gpIiBkPSJNMTcuOTk5OSAxNmMzLjMxMzcgMCA2LTIuNjg2MyA2LTYgMC0zLjMxMzcxLTIuNjg2My02LTYtNnMtNiAyLjY4NjI5LTYgNmMwIDMuMzEzNyAyLjY4NjMgNiA2IDYiLz48cGF0aCBmaWxsPSJ1cmwoI2kpIiBmaWxsLW9wYWNpdHk9Ii42IiBkPSJNMTcuOTk5OSAxNmMzLjMxMzcgMCA2LTIuNjg2MyA2LTYgMC0zLjMxMzcxLTIuNjg2My02LTYtNnMtNiAyLjY4NjI5LTYgNmMwIDMuMzEzNyAyLjY4NjMgNiA2IDYiLz48cGF0aCBmaWxsPSJ1cmwoI2opIiBmaWxsLW9wYWNpdHk9Ii41IiBkPSJNMTcuOTk5OSAxNmMzLjMxMzcgMCA2LTIuNjg2MyA2LTYgMC0zLjMxMzcxLTIuNjg2My02LTYtNnMtNiAyLjY4NjI5LTYgNmMwIDMuMzEzNyAyLjY4NjMgNiA2IDYiLz48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHg9IjQiIHk9IjIzIiBmaWxsPSJ1cmwoI2spIiByeD0iMy4yNSIvPjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgeD0iNCIgeT0iMjMiIGZpbGw9InVybCgjbCkiIGZpbGwtb3BhY2l0eT0iLjciIHJ4PSIzLjI1Ii8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjQ3OTIgMjguMTA1NGgtMi40NDcxdjcuNDY2aC0yLjA2NDh2LTcuNDY2SDguNTIwMTR2LTEuNjc2OGg2Ljk1OTA2eiIvPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0iYSIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDEzLjQ3ODQgMCAwIDMzLjI2OTQgMzkuNzk2NyAyMi4xNzM5KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNhOThhZmYiLz48c3RvcCBvZmZzZXQ9Ii4xNCIgc3RvcC1jb2xvcj0iIzhjNzVmZiIvPjxzdG9wIG9mZnNldD0iLjU2NSIgc3RvcC1jb2xvcj0iIzVmNTBlMiIvPjxzdG9wIG9mZnNldD0iLjkiIHN0b3AtY29sb3I9IiMzYzJjYjgiLz48L3JhZGlhbEdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iYiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDY4LjE1MzkgLTcuNzE1NjYwOTUgMTQuNzEzNTU4MzQpc2NhbGUoMzIuNzUyIDMzLjEyMzEpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iIzg1YzJmZiIvPjxzdG9wIG9mZnNldD0iLjY5IiBzdG9wLWNvbG9yPSIjNzU4OGZmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNjQ1OWZlIi8+PC9yYWRpYWxHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImQiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSgxMTMuMzI2IDguMDkyODUyNTUgMTcuNjQ0NzQ1MDEpc2NhbGUoMTkuMjE4NiAxNS40MjczKSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNiZDk2ZmYiLz48c3RvcCBvZmZzZXQ9Ii42ODY2ODUiIHN0b3AtY29sb3I9IiNiZDk2ZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJlIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMCAtMTAgMTIuNjIxNiAwIDMyLjk5OTkgMTEuNTcxNCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4yNjgyMDEiIHN0b3AtY29sb3I9IiM2ODY4ZjciLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMzOTIzYjEiLz48L3JhZGlhbEdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iZiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDQwLjA1MTYgLS4wMzA2ODE5NiA0NC44NzI5MDk1KXNjYWxlKDcuMTQ2MjkgMTAuMzM2MykiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4yNzA3MTEiIHN0b3AtY29sb3I9IiNhMWQzZmYiLz48c3RvcCBvZmZzZXQ9Ii44MTMzOTMiIHN0b3AtY29sb3I9IiNhMWQzZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJnIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VHJhbnNmb3JtPSJyb3RhdGUoLTQxLjY1ODEgMzIuMTE3OTk5MTggLTQzLjQxOTQ4NDIzKXNjYWxlKDguNTEyNzUgMjAuODgyNCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjZTNhY2ZkIi8+PHN0b3Agb2Zmc2V0PSIuODE2MDQxIiBzdG9wLWNvbG9yPSIjOWZhMmZmIiBzdG9wLW9wYWNpdHk9IjAiLz48L3JhZGlhbEdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iaCIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDAgLTEyIDE1LjE0NiAwIDE3Ljk5OTkgOC4yODU3MSkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii4yNjgyMDEiIHN0b3AtY29sb3I9IiM4MjgyZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMzOTIzYjEiLz48L3JhZGlhbEdyYWRpZW50PjxyYWRpYWxHcmFkaWVudCBpZD0iaSIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDQwLjA1MTYgLTMuMTU0NjUxNDcgMjEuNDE2NDE0NjYpc2NhbGUoOC41NzU1NCAxMi40MDM1KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjI3MDcxMSIgc3RvcC1jb2xvcj0iI2ExZDNmZiIvPjxzdG9wIG9mZnNldD0iLjgxMzM5MyIgc3RvcC1jb2xvcj0iI2ExZDNmZiIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImoiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09InJvdGF0ZSgtNDEuNjU4MSAyMC4zODE4MDM3NSAtMjYuNTE1NjYxNTgpc2NhbGUoMTAuMjE1MyAyNS4wNTg5KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNlM2FjZmQiLz48c3RvcCBvZmZzZXQ9Ii44MTYwNDEiIHN0b3AtY29sb3I9IiM5ZmEyZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvcmFkaWFsR3JhZGllbnQ+PHJhZGlhbEdyYWRpZW50IGlkPSJrIiBjeD0iMCIgY3k9IjAiIHI9IjEiIGdyYWRpZW50VHJhbnNmb3JtPSJyb3RhdGUoNDUgLTI1Ljc2MzQ1NTk3IDE2LjMyODQyNzEyKXNjYWxlKDIyLjYyNzQpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIuMDQ2ODc1IiBzdG9wLWNvbG9yPSIjNjg4ZWZmIi8+PHN0b3Agb2Zmc2V0PSIuOTQ2ODc1IiBzdG9wLWNvbG9yPSIjMjMwZjk0Ii8+PC9yYWRpYWxHcmFkaWVudD48cmFkaWFsR3JhZGllbnQgaWQ9ImwiIGN4PSIwIiBjeT0iMCIgcj0iMSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgwIDExLjIgLTEzLjA3MDIgMCAxMiAzMi42KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iLjU3MDY0NyIgc3RvcC1jb2xvcj0iIzY5NjVmNiIgc3RvcC1vcGFjaXR5PSIwIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOGY4ZmZmIi8+PC9yYWRpYWxHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImMiIHgxPSIyMC41OTM2IiB4Mj0iMjAuNTkzNiIgeTE9IjE4IiB5Mj0iNDIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBvZmZzZXQ9Ii44MDExNTkiIHN0b3AtY29sb3I9IiM2ODY0ZjYiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzUxNDlkZSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjwvc3ZnPg==" width="${sz}" height="${sz}" style="object-fit:contain;display:block">`;
+  return`<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAMAAAD6TlWYAAAC91BMVEVHcEwaGhgcHBobGxkcHBobGxkcHBobGxkcHBocHBocHBocHBocHBocHBocHBobGxkcHBoZGRcZGRcaGhkcHBocHBocHBocHBobGxkcHBocHBocHBocHBocHBodHRscHBobGxkcHBocHBocHBocHBocHBocHBocHBocHBrwrwDwsADysQDurwDrrADxsADxsADysQDysQDysQDxsADvrwDxsADwsADvrwDqrADxsADnqgDvrwDxsADwsADxsADwrwDvrwDxsADsrQDwrwDxrwDmqQDsrQDxsADsrQDxsADwrwDwrwBNs+NNs+NNs+NMsuNMsuI4p7tJrNtMseJLseBKr91MsuJMsuJMsuJMsuJLsuFLseFMsuJLseFKr95MsuJKr95MsuJMsuJLseBJrdtMsuJLsOBMsuJLseFLseFMsuJKr95MsuJLseFLseFNs+NMsuJLseFLseHPCV7OCV7OCV7QCV/PCV7QCV/QCV/OLUzQCV/PCV7OCV7QCV/QCV/QCV/QCV/RCV/RCV/QCV/QCV/OCV7QCV/NCF3QCV/NCF3PCV7BCFjMCV3QCV/RCmDQCV/JCVzOCV7OCV7PCV7QCV/QCV/MCF3MCV3QCV/PCV7QCV9MsuLxsADsrQDxsADrrADxsADxsAAcHBocHBobGxkcHBocHBocHBobGxkcHBobHBlCUmEcHBocHBobGxkcHBocHBocHBocHBocHBodXFIcHBkcHBocHBocHBocHBobGxocHBocHBocHBobGxkaGhgcHBobGxkcHBocHBocHBocHBocHBocHBocHBocHBocHBocHBocHBocHBocHBrwrwDwrwAAo2UApGUAoWMApGUAoGIApGUAoWMApGUAo2QApGUApGUAo2QApGUApGUAo2QApGUAoWMAomQApGUAomQApGUAo2QApGUAo2QAnGAApGUAo2QApGUApGUAn2IAo2QIl2YAo2QApWUApGUApGUApGUAo2UApGUApWYApWUApGUzWkEObDtgAAAA/XRSTlMAB7gMuxrAC5v+aecq48wPxw0MGdlcd1cJj/xwgP//+1TsMtZf+Esni42fpwIOxf//8jfvM8ykdQm1Bk/4V/xrSLwSQOwuId8n5q5hYv7//6EDLuxiGYT2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" width="${sz}" height="${sz}" style="object-fit:contain;display:block">`;
+}
+function tipoLabel(t){return t==='coworker'?'Coworker':t==='employee-agent'?'Employee Agent':'Orquestación'}
+function faqTab(n,btn){
+  document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.faq-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('faq-'+n).classList.add('on');
+}
+
+// ---- NAVIGATION ----
+function goTo(n){
+  if(n<0||n>=TOTAL||n===cur)return;
+  const dir=n>cur?1:-1;
+
+  // Reset demo state going backward
+  if(dir<0){
+    if(n<=8){ST.ch=null;ST.sid=null;ST.mi=-1}
+    if(n===9){ST.sid=null;ST.mi=-1}
+  }
+
+  const fromEl=document.getElementById('s'+cur);
+  const toEl=document.getElementById('s'+n);
+
+  fromEl.classList.remove('active');
+  fromEl.style.cssText=`transition:opacity .3s ease,transform .3s ease;opacity:0;transform:translateX(${dir>0?'-':''}44px)`;
+
+  toEl.style.cssText=`transition:none;opacity:0;transform:translateX(${dir>0?'':'- '}44px)`.replace('- ','');
+  // Fix for negative direction
+  toEl.style.transform=`translateX(${dir>0?'44px':'-44px'})`;
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      toEl.style.cssText='transition:opacity .45s cubic-bezier(.23,1,.32,1),transform .45s cubic-bezier(.23,1,.32,1)';
+      toEl.classList.add('active');
+    });
+  });
+
+  setTimeout(()=>{fromEl.style.cssText=''},380);
+
+  cur=n;
+  if(n===8)renderCanal();
+  if(n===9)renderEscenario();
+  if(n===10)renderDemo();
+  updateNav();
+}
+
+function updateNav(){
+  document.getElementById('bp').classList.toggle('dis',cur===0);
+  document.getElementById('bn').classList.toggle('dis',cur===TOTAL-1);
+  document.getElementById('snum').textContent=(cur+1)+' / '+TOTAL;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+
+// ---- STEPPER ----
+function stepperHTML(active){
+  const steps=[{n:1,l:'Canal'},{n:2,l:'Escenario'},{n:3,l:'Demo'}];
+  return`<div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:22px">
+    ${steps.map((s,i)=>`
+      ${i?`<div style="width:44px;height:2px;background:${active>i?'#066AFE':'#e2e8f0'};border-radius:1px;margin:0 4px"></div>`:''}
+      <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:${active===s.n?'#066AFE':active>s.n?'rgba(6,106,254,.08)':'transparent'};border:1.5px solid ${active===s.n?'#066AFE':active>s.n?'#066AFE':'#e2e8f0'}">
+        <span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:${active>s.n?'#066AFE':active===s.n?'rgba(255,255,255,.2)':'#f1f5f9'};color:${active>s.n?'#fff':active===s.n?'#fff':'#94a3b8'};font-size:10px;font-weight:800">${active>s.n?'✓':s.n}</span>
+        <span style="font-size:12px;font-weight:700;color:${active===s.n?'#fff':active>s.n?'#066AFE':'#94a3b8'}">${s.l}</span>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+// ---- RENDER CANAL ----
+function renderCanal(){
+  document.getElementById('canal-inner').innerHTML=`
+    <div class="demo-hd" style="animation:fade-up .5s .02s both">
+      <span class="demo-hd-tag">Demo interactiva</span>
+      <h2 class="demo-hd-h2">Ejemplos reales, canal a canal</h2>
+      <p class="demo-hd-p">Elegí el canal donde trabaja tu equipo y explorá conversaciones reales.</p>
+    </div>
+    ${stepperHTML(1)}
+    <h2 class="canal-h" style="animation:fade-up .5s .10s both">¿Desde qué canal quieres ver la demo?</h2>
+    <p class="canal-sub" style="animation:fade-up .5s .18s both">Elige el canal y te mostramos Coworker (o un Employee Agent) en acción</p>
+    <div class="canal-cards" style="animation:fade-up .5s .26s both">
+      ${['salesforce','teams','slack'].map(ch=>`
+        <div class="canal-card" onclick="selectCanal('${ch}')">
+          <div class="canal-logo">${chLogo(ch,46)}</div>
+          <div class="canal-name">${chName(ch)}</div>
+          <div class="canal-desc">${chDesc(ch)}</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+// ---- RENDER ESCENARIO ----
+function renderEscenario(){
+  const ch=ST.ch;
+  document.getElementById('esc-inner').innerHTML=`
+    <div class="demo-hd" style="animation:fade-up .5s .02s both">
+      <span class="demo-hd-tag">Demo interactiva</span>
+      <h2 class="demo-hd-h2">Ejemplos reales, canal a canal</h2>
+      <p class="demo-hd-p">Elegí el canal donde trabaja tu equipo y explorá conversaciones reales.</p>
+    </div>
+    ${stepperHTML(2)}
+    <div class="esc-header" style="animation:fade-up .5s .10s both;text-align:center;margin-bottom:16px">
+      <h2 class="esc-h">Elige un escenario</h2>
+      <p class="esc-sub">Canal: ${chLogo(ch,18)} &nbsp;<strong>${chName(ch)}</strong></p>
+    </div>
+    <div class="esc-grid" style="animation:fade-up .5s .13s both">
+      ${SCENS.map(s=>`
+        <div class="esc-card" onclick="selectScen('${s.id}')">
+          <span class="esc-icon">${s.icono}</span>
+          <div class="esc-ttl">${s.titulo}</div>
+          <div class="esc-desc">${s.descripcion}</div>
+          <span class="tipo ${s.tipo}">${tipoLabel(s.tipo)}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="esc-back" style="animation:fade-up .5s .21s both" onclick="goTo(8)">&#8592; Cambiar canal</div>`;
+}
+
+// ---- CHANNEL ACTIONS ----
+function selectCanal(ch){ST.ch=ch;goTo(9)}
+function selectScen(id){ST.sid=id;ST.mi=-1;goTo(10)}
+
+// ---- BUILD SHELL ----
+function buildShell(ch){
+  const msgs=`<div id="msgs-area" style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:11px;${ch!=='slack'?'background:#35344A':'background:#fff'}"></div>`;
+
+  if(ch==='salesforce'){
+    return`<div style="display:flex;flex-direction:column;height:100%;background:#fff">
+      <div style="height:54px;background:#001E5B;display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0">
+        <span style="display:inline-flex;filter:brightness(0) invert(1)">${chLogo('salesforce',26)}</span>
+        <span style="color:#fff;font-size:15px;font-weight:700">Salesforce</span>
+        <span style="margin-left:auto;color:rgba(255,255,255,.45);font-size:12px">Agentforce Ask</span>
+      </div>
+      <div style="background:linear-gradient(135deg,#001E5B,#022AC0);padding:14px 24px;flex-shrink:0">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:9px">AGENTFORCE COWORKER</div>
+        <div style="display:flex;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:9999px;padding:9px 18px;gap:10px">
+          <span style="flex:1;font-size:13.5px;color:rgba(255,255,255,.4)">Pregúntale a Agentforce...</span>
+          <div style="width:28px;height:28px;background:#066AFE;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M2 12L22 2l-5 20-5-8-10-2z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div id="msgs-area" style="flex:1;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:11px;background:#f8fafc"></div>
+    </div>`;
+  }
+
+  if(ch==='teams'){
+    return`<div style="display:flex;height:100%">
+      <div style="width:62px;background:#201F2D;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:10px;flex-shrink:0">
+        ${chLogo('teams',36)}
+        <div style="color:rgba(255,255,255,.4);font-size:18px;margin-top:8px">💬</div>
+        <div style="color:rgba(255,255,255,.3);font-size:18px">📅</div>
+        <div style="color:rgba(255,255,255,.3);font-size:18px">📁</div>
+      </div>
+      <div style="width:230px;background:#2D2C3E;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid rgba(255,255,255,.07)">
+        <div style="padding:18px 14px 10px;font-size:14px;font-weight:700;color:#fff">Chats</div>
+        <div style="padding:7px 14px;display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.1);border-radius:6px;margin:0 8px 3px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#066AFE;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:800;flex-shrink:0">A</div>
+          <span style="font-size:12.5px;color:#fff;font-weight:600">Agentforce Coworker</span>
+        </div>
+        <div style="padding:7px 14px;display:flex;align-items:center;gap:9px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#475569;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">MG</div>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6)">María García</span>
+        </div>
+        <div style="padding:7px 14px;display:flex;align-items:center;gap:9px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">SC</div>
+          <span style="font-size:12.5px;color:rgba(255,255,255,.6)">Sales Channel</span>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div style="height:50px;background:#292838;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 18px;gap:8px;flex-shrink:0">
+          <span style="font-size:13.5px;font-weight:700;color:#fff">Agentforce Coworker</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.35)">Bot</span>
+        </div>
+        <div id="msgs-area" class="dark-msgs" style="flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;background:#35344A"></div>
+        <div style="padding:10px 18px;background:#292838;flex-shrink:0">
+          <div style="background:#35344A;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:9px 14px;font-size:12.5px;color:rgba(255,255,255,.3)">Escribe un mensaje...</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Slack
+  return`<div style="display:flex;height:100%">
+    <div style="width:232px;background:#1D1535;display:flex;flex-direction:column;flex-shrink:0">
+      <div style="padding:14px 16px;font-size:14px;font-weight:800;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)">Mi Empresa <span style="color:#2BAC76;font-size:10px">●</span></div>
+      <div style="padding:10px 0 4px">
+        <div style="padding:2px 14px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:3px">Canales</div>
+        <div style="padding:4px 14px;font-size:13px;color:#fff;font-weight:600;background:#1264A3;margin:1px 7px;border-radius:4px"># agentforce-coworker</div>
+        <div style="padding:4px 14px;font-size:13px;color:rgba(255,255,255,.6);margin:1px 7px"># general</div>
+        <div style="padding:4px 14px;font-size:13px;color:rgba(255,255,255,.6);margin:1px 7px"># ventas</div>
+      </div>
+      <div style="padding:4px 0">
+        <div style="padding:2px 14px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:3px">Agentes</div>
+        <div style="padding:4px 14px;display:flex;align-items:center;gap:6px;margin:1px 7px">
+          <span style="color:rgba(255,255,255,.7);font-size:13px">🤖</span>
+          <span style="font-size:13px;color:rgba(255,255,255,.7)">Agentforce Coworker</span>
+          <span style="width:7px;height:7px;background:#2BAC76;border-radius:50%;flex-shrink:0;margin-left:auto"></span>
+        </div>
+        <div style="padding:4px 14px;display:flex;align-items:center;gap:6px;margin:1px 7px">
+          <span style="color:rgba(255,255,255,.45);font-size:13px">🤖</span>
+          <span style="font-size:13px;color:rgba(255,255,255,.45)">HR Agent</span>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;background:#fff;overflow:hidden">
+      <div style="height:50px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 20px;flex-shrink:0">
+        <span style="font-size:15px;font-weight:800;color:#0f172a"># agentforce-coworker</span>
+        <span style="margin-left:auto;font-size:12px;color:#94a3b8">3 miembros</span>
+      </div>
+      <div id="msgs-area" style="flex:1;overflow-y:auto;padding:14px 20px;display:flex;flex-direction:column;gap:9px;background:#fff"></div>
+      <div style="padding:10px 20px;background:#fff;border-top:1px solid #e2e8f0;flex-shrink:0">
+        <div style="background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:9px 14px;font-size:13px;color:#94a3b8">Mensaje #agentforce-coworker</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---- RENDER MESSAGE ----
+function renderMsg(m,ch){
+  const dark=ch==='teams';
+  if(m.rol==='usuario'){
+    return`<div class="msg-wrap msg-r"><div class="msg-lbl r">Tú</div><div class="bub-u">${fmt(m.txt)}</div></div>`;
+  }
+  if(m.rol==='sistema'){
+    const datos=(m.datos||[]).map(d=>`<span class="dato">${d}</span>`).join('');
+    return`<div class="msg-wrap msg-c"><div class="bub-s"><span class="spin-ico">⟳</span>${fmt(m.txt)}${datos}</div></div>`;
+  }
+  if(m.rol==='subagente'){
+    const cls=dark?'bub-sub dark':'bub-sub';
+    return`<div class="msg-wrap msg-l">
+      <div class="msg-lbl">${m.sub}</div>
+      <div class="${cls}">
+        <div class="sub-hd"><span class="sub-dot"></span>${m.sub}</div>
+        ${fmt(m.txt)}
+      </div>
+    </div>`;
+  }
+  // agente
+  const agentName=ch==='teams'?'Agentforce Coworker':ch==='slack'?'Agentforce Coworker':'Agentforce';
+  return`<div class="msg-wrap msg-l"><div class="msg-lbl">${agentName}</div><div class="bub-a">${fmt(m.txt)}</div></div>`;
+}
+
+// ---- RENDER DEMO ----
+function renderDemo(){
+  const scen=getScen();
+  const ch=ST.ch;
+  if(!scen||!ch){goTo(8);return}
+  const di=document.getElementById('demo-inner');
+  di.className='';
+  const leftPanel=`<div class="demo-left">
+    <div class="demo-left-label">Escenario Activo</div>
+    <div class="demo-left-icon">${scen.icono}</div>
+    <div class="demo-left-title">${scen.titulo}</div>
+    <span class="tipo ${scen.tipo}" style="margin-bottom:12px;align-self:flex-start">${tipoLabel(scen.tipo)}</span>
+    <div class="demo-left-desc">${scen.descripcion}</div>
+    <div class="demo-insight" id="insight-panel">
+      <strong>Insight</strong>
+      <p>${fmt(scen.insight)}</p>
+    </div>
+    <div class="demo-left-actions">
+      <button class="demo-nueva-btn" onclick="selectScen('${scen.id}')">&#10022; Nueva demo</button>
+      <div class="demo-volver-link" onclick="goTo(9)">&#8592; Volver a escenarios</div>
+    </div>
+  </div>`;
+  const bottomBar=`<div class="demo-bar">
+    <span class="demo-bar-prog" id="dprog">0 / ${scen.conv.length} mensajes</span>
+    <span class="demo-bar-hint">Enter &#x21b5; para avanzar</span>
+    <button class="demo-bar-btn" id="dbtn-next" onclick="addMsg()">Siguiente &#8594;</button>
+  </div>`;
+  di.innerHTML=`
+    <div class="demo-hd" style="animation:fade-up .5s .02s both">
+      <span class="demo-hd-tag">Demo interactiva</span>
+      <h2 class="demo-hd-h2">Ejemplos reales, canal a canal</h2>
+      <p class="demo-hd-p">Elegí el canal donde trabaja tu equipo y explorá conversaciones reales.</p>
+    </div>
+    ${stepperHTML(3)}
+    <div class="demo-card">
+      <div class="demo-row">${leftPanel}<div class="demo-right">${buildShell(ch)}</div></div>
+      ${bottomBar}
+    </div>`;
+  ST.mi=-1;
+  setTimeout(addMsg,400);
+}
+
+function addMsg(){
+  const scen=getScen();
+  if(!scen)return;
+  const conv=scen.conv;
+  ST.mi++;
+  if(ST.mi>=conv.length){ST.mi=conv.length-1;return}
+  const area=document.getElementById('msgs-area');
+  if(area){
+    const el=document.createElement('div');
+    el.innerHTML=renderMsg(conv[ST.mi],ST.ch);
+    const child=el.firstElementChild;
+    if(child){area.appendChild(child);area.scrollTop=area.scrollHeight}
+  }
+  // update controls
+  const prog=document.getElementById('dprog');
+  const nxt=document.getElementById('dbtn-next');
+  if(prog)prog.textContent=(ST.mi+1)+'/'+conv.length;
+  if(nxt)nxt.disabled=(ST.mi>=conv.length-1);
+  // show insight when done
+  if(ST.mi>=conv.length-1){
+    const ic=document.getElementById('insight-panel');
+    if(ic){ic.style.display='block';ic.scrollIntoView&&ic.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  }
+}
+
+// ---- INIT ----
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.addEventListener('click',()=>goTo(i));
+  dotsEl.appendChild(d);
+}
+
+document.getElementById('bp').addEventListener('click',()=>goTo(cur-1));
+document.getElementById('bn').addEventListener('click',()=>goTo(cur+1));
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')goTo(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')goTo(cur-1);
+  if(e.key==='Enter'&&cur===9){const btn=document.getElementById('dbtn-next');if(btn&&!btn.disabled)addMsg();}
+});
+
+// Auto-advance from hero CTA
+document.querySelector('.cta').addEventListener('click',()=>goTo(1));
+
+renderCanal(); // Pre-render slide 5
+
+/* ===== ACTIVATION CAROUSEL (slide 6) ===== */
+let carIdx = 0;
+const CAR_N = 8;
+function carGo(i){
+  if(i<0||i>=CAR_N)return;
+  carIdx=i;
+  document.querySelectorAll('#s6 .car-item').forEach((el,k)=>el.classList.toggle('on',k===i));
+  document.querySelectorAll('#s6 .car-dot').forEach((el,k)=>el.classList.toggle('on',k===i));
+  document.getElementById('car-prev').classList.toggle('dis',i===0);
+  document.getElementById('car-next').classList.toggle('dis',i===CAR_N-1);
+  document.getElementById('car-count').textContent=(i+1)+' / '+CAR_N;
+}
+(function(){
+  const cd=document.getElementById('car-dots');
+  for(let i=0;i<CAR_N;i++){
+    const d=document.createElement('div');
+    d.className='car-dot'+(i===0?' on':'');
+    d.addEventListener('click',()=>carGo(i));
+    cd.appendChild(d);
+  }
+})();
+
+updateNav();
+</script>
+</body>
+</html>
