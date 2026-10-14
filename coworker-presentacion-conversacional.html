@@ -427,7 +427,7 @@ dialog.lb::backdrop { background: rgba(3, 20, 45, .55); backdrop-filter: blur(6p
               <ul class="menu" id="m-plan" role="menu" hidden>
                 <li role="none"><button role="menuitem" data-go="5"><span class="n">5</span>Activación en tres pasos</button></li>
                 <li role="none"><button role="menuitem" data-go="6"><span class="n">6</span>Paso a paso en Setup</button></li>
-                <li role="none"><button role="menuitem" data-go="7"><span class="n">7</span>Clientes elegibles</button></li>
+                <li role="none"><button role="menuitem" data-go="7"><span class="n">7</span>Dos formas de tener Coworker</button></li>
                 <li role="none"><button role="menuitem" data-go="8"><span class="n">8</span>Cómo se cobra el uso</button></li>
               </ul>
             </div>
@@ -601,18 +601,21 @@ const TURNS = [
     }, []).map(pair => `<div class="shots">${pair}</div>`)
   },
   {
-    q: '¿Qué clientes son elegibles?',
-    intro: 'Te resumo los prerequisitos y la matriz de elegibilidad.',
-    status: ['Finding Salesforce records (Entitlement)', '4 results'],
-    lead: 'Prerequisitos: Salesforce Edition <strong>Enterprise, Unlimited o Agentforce 1</strong> + uno de estos SKUs: A4X, A1E o Foundations Flex. Data 360 debe estar provisionado (no necesita estar configurado).',
+    q: '¿De qué formas puede un cliente tener Coworker hoy?',
+    intro: 'Hoy hay dos caminos, y dependen de lo que el cliente ya tiene contratado.',
+    status: ['Finding Salesforce records (Entitlement)', '2 results'],
+    lead: 'Es una u otra, según el modelo de licenciamiento:',
     blocks: [
-      table(['Estado', 'Edición', 'SKU o entitlement'], [
-        ['✅ Elegible', 'Enterprise, Unlimited o Agentforce 1', 'Agentforce for Sales Add-on, Service Add-on, Foundations Flex, A1E, A4X o AELA'],
-        ['⚠️ Condicional', 'Enterprise, Unlimited o Agentforce 1', 'Ninguno de los anteriores: necesita Foundations-only, Flex Credits o un Agentforce Add-on'],
-        ['❌ No elegible', 'Por debajo de Enterprise (Essentials, Professional)', 'Upgrade a Enterprise requerido'],
-        ['❌ No elegible', 'Cualquier edición GovCloud', 'No soportado en beta ni GA']
-      ]),
-      '<p class="note">💡 <strong>Pro tip:</strong> pedirle al cliente que provisione Data 360 antes de tu llamada facilita la demo.</p>'
+      hr,
+      `<div class="two">
+        <div class="rec agent"><span class="ic" style="background:#0176D3">${ICO.spark}</span><div><b>Ilimitado · A4X / A1E</b><small>Licenciamiento • Uso sin medición</small>
+          <p>Si el cliente tiene <strong>A4X o A1E</strong>, Coworker viene incluido con uso <strong>sin medición</strong> de Agentforce y de los créditos de consulta de Data 360. Puede usarlo todo lo que necesite sin preocuparse por el consumo.</p>
+          <div class="tags"><span>Incluido</span><span>Sin medición</span><span>Agentforce + Data 360</span></div></div></div>
+        <div class="rec agent"><span class="ic" style="background:#7F8DE1">${ICO.wrench}</span><div><b>Por consumo · Flex Credits</b><small>Licenciamiento • Pago por uso</small>
+          <p>Para clientes que <strong>no</strong> están en A4X / A1E. El uso de Agentforce y las consultas a Data 360 se <strong>miden</strong> y se descuentan en Flex Credits a medida que el equipo usa Coworker.</p>
+          <div class="tags"><span>Pago por uso</span><span>Medido</span><span>Sin A4X / A1E</span></div></div></div>
+      </div>`,
+      '<p class="note">📊 En ambos casos, el consumo se puede ver en el <strong>Digital Wallet</strong> del cliente.</p>'
     ]
   },
   {
